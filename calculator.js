@@ -384,7 +384,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'prepaid_10_biweekly': {
-            pitch: 'So this plan gives you 5 months of coverage and includes a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Based on your property, you\u2019ll be getting 10 applications, including the free one, and your total comes to <strong>$PRICE</strong>.',
+            pitch: 'So this plan gives you 3 coverage options \u2014 5, 6, or 7 months, and they all include a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Based on your property, it comes out to <strong>$PER_TREATMENT per treatment</strong>. Our most popular is the 6-month plan \u2014 would you prefer coverage for 5, 6, or 7 months?',
             bestFor: 'Homeowners who want great value for peak season \u2014 about 5 months of coverage.',
             details: [
                 '<strong>Pay for 9, get 10 applications</strong> (1 FREE spray!)',
@@ -398,7 +398,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'prepaid_12_biweekly': {
-            pitch: 'So this plan gives you 6 months of coverage and includes a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Our most popular option \u2014 based on your property, you\u2019ll be getting 12 applications, including the free one, and your total comes to <strong>$PRICE</strong>.',
+            pitch: 'So this plan gives you 3 coverage options \u2014 5, 6, or 7 months, and they all include a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Based on your property, it comes out to <strong>$PER_TREATMENT per treatment</strong>. Our most popular is the 6-month plan \u2014 would you prefer coverage for 5, 6, or 7 months?',
             bestFor: 'Homeowners who want the best overall value and season-long peace of mind.',
             details: [
                 '<strong>Pay for 11, get 12 applications</strong> (1 FREE spray!) \u2014 Most Popular',
@@ -412,7 +412,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'prepaid_14_biweekly': {
-            pitch: 'So this plan gives you 7 months of coverage and includes a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Based on your property, you\u2019ll be getting 14 applications, including the free one, and your total comes to <strong>$PRICE</strong>.',
+            pitch: 'So this plan gives you 3 coverage options \u2014 5, 6, or 7 months, and they all include a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Based on your property, it comes out to <strong>$PER_TREATMENT per treatment</strong>. Our most popular is the 6-month plan \u2014 would you prefer coverage for 5, 6, or 7 months?',
             bestFor: 'Homeowners who want maximum coverage from early spring through late fall \u2014 7 full months.',
             details: [
                 '<strong>Pay for 13, get 14 applications</strong> (1 FREE spray!) \u2014 Maximum Coverage',
@@ -476,14 +476,21 @@ function getTalkingPoints(packageKey, answers) {
 
     const data = packageData[packageKey] || { pitch: '', bestFor: '', details: [] };
 
-    // Replace $PRICE placeholder with actual price
+    // Replace $PRICE and $PER_TREATMENT placeholders with actual prices
     const tier = currentTier;
     const traditionalPrice = PRICING_JSON.packages_by_tier[packageKey]?.[tier];
     let priceDisplay = traditionalPrice ? `$${traditionalPrice}` : '$XX';
     if (packageKey.includes('pps')) priceDisplay += '/app';
     else if (packageKey === 'budget_12mo_monthly') priceDisplay += '/mo';
 
-    const pitch = data.pitch.replace(/\$PRICE/g, priceDisplay);
+    // Calculate per-treatment price for prepaid packages
+    const appCounts = { 'prepaid_10_biweekly': 10, 'prepaid_12_biweekly': 12, 'prepaid_14_biweekly': 14 };
+    let perTreatmentDisplay = '$XX';
+    if (appCounts[packageKey] && traditionalPrice) {
+        perTreatmentDisplay = `$${Math.round(traditionalPrice / appCounts[packageKey])}`;
+    }
+
+    const pitch = data.pitch.replace(/\$PER_TREATMENT/g, perTreatmentDisplay).replace(/\$PRICE/g, priceDisplay);
 
     const contextual = [];
 
