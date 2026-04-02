@@ -347,7 +347,7 @@ function createPackageCard(packageKey, tier, badge, isRecommended, score, answer
 function getTalkingPoints(packageKey, answers) {
     const packageData = {
         'pps_biweekly': {
-            pitch: 'This package is serviced on a bi-weekly basis \u2014 the treatment window is every 11 to 17 days, which matches the mosquito life cycle. It\u2019s our most flexible plan with no contract and no upfront payment. We do ask for a minimum of 7 applications. We typically treat until it gets cold in the fall, but if you\u2019d ever like to stop earlier, just shoot us a text or a call and we\u2019ll pause your service until the next season. Based on your property size, it would be <strong>$PRICE per application</strong>, charged at each visit.',
+            pitch: 'It\u2019s a great flexible option, serviced on a bi-weekly basis. The treatment window is every 11\u201317 days which matches the mosquito life cycle to provide your most consistent experience. Although it\u2019s a flexible plan, we ask that you receive a minimum of 7 applications. Typically we treat until it gets cold in the fall, but if you\u2019d ever like to stop earlier, just shoot us a text or a call and we\u2019ll pause your service until the next season. Based on your property size, it would be <strong>$PRICE per application</strong>.',
             bestFor: 'Customers who want flexibility without a long-term commitment.',
             details: [
                 '<strong>No contract</strong> \u2014 cancel or pause anytime with a call or text',
@@ -384,7 +384,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'prepaid_10_biweekly': {
-            pitch: 'This is our 10-application prepaid plan \u2014 it comes with a free application, so you pay for 9 and get 10! We\u2019ll treat your property on a bi-weekly basis, every 11 to 17 days matching the mosquito life cycle. This covers about 5 months of protection, which is perfect for peak season. The total would be <strong>$PRICE</strong>, due as a one-time payment on your first service date.',
+            pitch: 'So this plan gives you 5 months of coverage and includes a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Based on your property, you\u2019ll be getting 10 applications, including the free one, and your total comes to <strong>$PRICE</strong>.',
             bestFor: 'Homeowners who want great value for peak season \u2014 about 5 months of coverage.',
             details: [
                 '<strong>Pay for 9, get 10 applications</strong> (1 FREE spray!)',
@@ -398,7 +398,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'prepaid_12_biweekly': {
-            pitch: 'This is our most popular plan \u2014 the 12-application prepaid package. It comes with a free application, so you pay for 11 and get 12! We treat on a bi-weekly basis, every 11 to 17 days matching the mosquito life cycle. This covers a full 6-month season. I\u2019d recommend this one \u2014 the total would be <strong>$PRICE</strong>, due as a one-time payment on your first service date.',
+            pitch: 'So this plan gives you 6 months of coverage and includes a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Our most popular option \u2014 based on your property, you\u2019ll be getting 12 applications, including the free one, and your total comes to <strong>$PRICE</strong>.',
             bestFor: 'Homeowners who want the best overall value and season-long peace of mind.',
             details: [
                 '<strong>Pay for 11, get 12 applications</strong> (1 FREE spray!) \u2014 Most Popular',
@@ -412,7 +412,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'prepaid_14_biweekly': {
-            pitch: 'This is our maximum protection package \u2014 14 applications with a free one included, so you pay for 13 and get 14! We treat bi-weekly, every 11 to 17 days, and this covers a full 7 months from early spring through late fall. It\u2019s the best per-application value we offer. The total would be <strong>$PRICE</strong>, due as a one-time payment on your first service date.',
+            pitch: 'So this plan gives you 7 months of coverage and includes a free treatment. We come out every 11\u201317 days, which lines up with the mosquito life cycle to provide your most consistent experience. Based on your property, you\u2019ll be getting 14 applications, including the free one, and your total comes to <strong>$PRICE</strong>.',
             bestFor: 'Homeowners who want maximum coverage from early spring through late fall \u2014 7 full months.',
             details: [
                 '<strong>Pay for 13, get 14 applications</strong> (1 FREE spray!) \u2014 Maximum Coverage',
@@ -426,7 +426,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'mem_lab_6_triweekly': {
-            pitch: 'This is our Summer Plan \u2014 it comes with 6 applications and covers you for the peak outdoor months. We typically start servicing every 3 weeks, beginning the third week of May just before Memorial Day, with the last service completed just after Labor Day. It\u2019s a great entry-level package with a one-time payment of <strong>$PRICE</strong> billed on your first scheduled treatment.',
+            pitch: 'This is a great option to cover peak activity during summer months. We service your property every 3 weeks, starting the 3rd week of May just before Memorial Day, with the last service completed just after Labor Day. With a one-time payment billed on your first scheduled treatment, the Mosquito Mike Summer Plan is only <strong>$PRICE</strong>.',
             bestFor: 'Pool owners, BBQ hosts, and anyone who lives outdoors during summer.',
             details: [
                 '6 triweekly treatments (Memorial Day through Labor Day)',
@@ -438,7 +438,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'budget_12mo_monthly': {
-            pitch: 'This plan is a great alternative to paying each time we come out or having to pay everything upfront. It gives you a full season of tri-weekly treatments split into 12 easy monthly payments. To keep them low and predictable, this is a contract-based plan and <strong>ACH is the only accepted payment method</strong> \u2014 no credit or debit cards. Each payment of <strong>$PRICE</strong> is due on the first of each month, unless you\u2019d prefer a different billing date.',
+            pitch: 'This plan is a great alternative to paying each time we come out, or having to pay everything upfront. It allows you to get a full season of tri-weekly treatments and is split into 12 easy payments. To keep them low and predictable, this is a contract-based plan with <strong>ACH accepted as the payment method</strong>. Each payment of <strong>$PRICE</strong> is due on the first of each month, unless you\u2019d prefer a different billing date.',
             bestFor: 'Families who want reliable coverage with predictable monthly payments and no large upfront cost.',
             details: [
                 '<strong>Contract-based \u2014 12-month commitment required</strong>',
@@ -451,7 +451,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'event_non_holiday': {
-            pitch: 'This is a one-time application designed to keep mosquitoes, ticks, and fleas away from your treatment area for the duration of your event. The payment of <strong>$PRICE</strong> is due the day before your service. And if you enjoy it and want to continue with ongoing protection, we can prorate what you paid toward a seasonal package of your choosing.',
+            pitch: 'This is a one-time application designed to mitigate mosquitos, ticks and fleas from your treatment area for the duration of your event. The application comes with a payment of <strong>$PRICE</strong> due the day before your service. If you enjoy the service and want to continue, we can prorate what you paid to a package of your choosing.',
             bestFor: 'Anyone hosting a wedding, party, graduation, or backyard event.',
             details: [
                 'Single one-time treatment timed for maximum effectiveness on your event date',
@@ -462,7 +462,7 @@ function getTalkingPoints(packageKey, answers) {
             ]
         },
         'event_holiday': {
-            pitch: 'Same as our standard event protection but at the holiday rate. This is a one-time application for your holiday gathering \u2014 the payment of <strong>$PRICE</strong> is due the day before your service. If you want to continue with seasonal protection afterward, we can prorate what you paid toward any package.',
+            pitch: 'This is a one-time application designed to mitigate mosquitos, ticks and fleas from your treatment area for the duration of your event. The application comes with a payment of <strong>$PRICE</strong> due the day before your service. If you enjoy the service and want to continue, we can prorate what you paid to a package of your choosing.',
             bestFor: 'Anyone hosting a holiday gathering or special occasion.',
             details: [
                 'Single one-time treatment at <strong>holiday rate</strong>',
