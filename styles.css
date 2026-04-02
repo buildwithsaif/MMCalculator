@@ -1,0 +1,782 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    padding: 12px 8px;
+}
+
+.container {
+    max-width: 450px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.08),
+        0 2px 6px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.header {
+    background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+    color: #1a1a1a;
+    padding: 20px 16px;
+    text-align: center;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* Hide header on results page */
+body.showing-results .header {
+    display: none;
+}
+
+.header-logo {
+    max-width: 120px;
+    height: auto;
+    margin-bottom: 12px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+}
+
+.header h1 {
+    font-size: 1.25rem;
+    margin-bottom: 6px;
+    color: #1a1a1a;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.header p {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.content {
+    padding: 20px 16px;
+}
+
+/* Page 1: Questions */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+}
+
+.input-group input[type="number"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e5e5e5;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    font-family: inherit;
+}
+
+.input-group input[type="number"]:focus {
+    outline: none;
+    border-color: #DC143C;
+    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.08);
+}
+
+.input-group input[type="number"]:hover {
+    border-color: #d0d0d0;
+}
+
+.tier-display {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #4a5568;
+    border: 1px solid #e5e5e5;
+    font-weight: 500;
+}
+
+.tier-display.warning {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+    color: #c53030;
+    border: 1px solid #feb2b2;
+}
+
+.btn-view-pricing {
+    margin-top: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 2px 6px rgba(8, 145, 178, 0.25);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-view-pricing:hover {
+    background: linear-gradient(135deg, #0e7490 0%, #155e75 100%);
+    box-shadow: 0 4px 10px rgba(8, 145, 178, 0.35);
+}
+
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.radio-option {
+    flex: 1;
+    min-width: calc(50% - 4px);
+}
+
+/* For 3-option groups, make them equal width */
+.radio-group:has(.radio-option:nth-child(3):last-child) .radio-option {
+    min-width: calc(33.33% - 6px);
+}
+
+.radio-option input[type="radio"] {
+    display: none;
+}
+
+.radio-option label {
+    display: block;
+    padding: 10px 8px;
+    background: white;
+    border: 2px solid #e5e5e5;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    color: #4a5568;
+    font-size: 0.85rem;
+}
+
+.radio-option input[type="radio"]:checked + label {
+    background: linear-gradient(135deg, #DC143C 0%, #B91227 100%);
+    color: white;
+    border-color: #DC143C;
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.25);
+}
+
+.radio-option label:hover {
+    border-color: #DC143C;
+    background: #fafafa;
+}
+
+.radio-option input[type="radio"]:checked + label:hover {
+    background: linear-gradient(135deg, #B91227 0%, #A01020 100%);
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    letter-spacing: -0.01em;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #DC143C 0%, #B91227 100%);
+    color: white;
+    flex: 1;
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.25);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #B91227 0%, #A01020 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.35);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: white;
+    color: #4a5568;
+    border: 2px solid #e5e5e5;
+}
+
+.btn-secondary:hover {
+    background: #fafafa;
+    border-color: #d0d0d0;
+}
+
+/* Special styling for "See All Packages" button */
+.btn-view-all {
+    background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+    color: white;
+    border: 2px solid #0891b2;
+    box-shadow: 0 2px 8px rgba(8, 145, 178, 0.25);
+    font-weight: 600;
+}
+
+.btn-view-all:hover {
+    background: linear-gradient(135deg, #0e7490 0%, #155e75 100%);
+    border-color: #0e7490;
+    box-shadow: 0 4px 12px rgba(8, 145, 178, 0.35);
+}
+
+.btn-view-all:active {
+    transform: translateY(0);
+}
+
+/* Compact buttons for fixed bar */
+.pricing-toggle-container .btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+}
+
+/* Page 2: Results */
+.package-card {
+    background: white;
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.package-card:hover {
+    border-color: #e0e0e0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.package-card.recommended {
+    border-color: #DC143C;
+    box-shadow: 0 4px 16px rgba(220, 20, 60, 0.15);
+    background: linear-gradient(to bottom, #ffffff 0%, #fffafa 100%);
+}
+
+.package-card.recommended:hover {
+    box-shadow: 0 6px 20px rgba(220, 20, 60, 0.2);
+}
+
+.package-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 8px;
+}
+
+.package-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+
+.recommendation-badge {
+    background: linear-gradient(135deg, #DC143C 0%, #B91227 100%);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(220, 20, 60, 0.25);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.pricing-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+    padding: 12px;
+    background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+    border-radius: 10px;
+    border: 1px solid #f0f0f0;
+}
+
+.pricing-option {
+    text-align: center;
+    flex: 1;
+}
+
+.pricing-label {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pricing-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+}
+
+.talking-points {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.talking-points h4 {
+    color: #1a1a1a;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.talking-points ul {
+    list-style: none;
+    padding-left: 0;
+    column-count: 1;
+}
+
+.talking-points li {
+    padding: 6px 0;
+    padding-left: 22px;
+    position: relative;
+    color: #4a5568;
+    line-height: 1.5;
+    font-size: 0.85rem;
+    break-inside: avoid;
+}
+
+.talking-points li:before {
+    content: "✔";
+    position: absolute;
+    left: 0;
+    color: #48bb78;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* All Packages Section - Compact Grid */
+.all-packages {
+    display: none;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.all-packages.show {
+    display: block;
+}
+
+.all-packages h3 {
+    color: #1a1a1a;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* Make all packages cards more compact */
+.all-packages .package-card {
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.all-packages .package-header {
+    margin-bottom: 8px;
+}
+
+.all-packages .package-title {
+    font-size: 0.9rem;
+}
+
+.all-packages .pricing-row {
+    padding: 8px;
+    margin-bottom: 0;
+}
+
+.all-packages .pricing-amount {
+    font-size: 1.25rem;
+}
+
+.copy-section {
+    margin-top: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+    border-radius: 10px;
+    border: 1px solid #e5e5e5;
+}
+
+.copy-section h4 {
+    margin-bottom: 8px;
+    color: #1a1a1a;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: -0.01em;
+}
+
+.copy-text {
+    padding: 12px;
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    color: #4a5568;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.btn-copy {
+    margin-top: 8px;
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 6px rgba(72, 187, 120, 0.25);
+    width: 100%;
+}
+
+.btn-copy:hover {
+    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+    box-shadow: 0 4px 10px rgba(72, 187, 120, 0.3);
+}
+
+.btn-copy.copied {
+    background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+}
+
+.score-debug {
+    display: none;
+    margin-top: 8px;
+    padding: 8px;
+    background: #fef5e7;
+    border: 1px solid #f9c851;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #7a6c2e;
+}
+
+.score-debug.show {
+    display: block;
+}
+
+.toggle-debug {
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    font-size: 0.65rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+}
+
+.toggle-debug:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+/* Modern Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Pricing Toggle Switch */
+.pricing-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.pricing-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #e5e5e5;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 24px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pricing-toggle input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.pricing-toggle input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+.pricing-toggle:hover .toggle-slider {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(72, 187, 120, 0.1);
+}
+
+/* Fixed pricing toggle - compact for narrow window */
+.pricing-toggle-container {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 450px;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    padding: 10px 12px;
+    border-bottom: 2px solid #e5e5e5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Top row: buttons */
+.pricing-toggle-container > div:first-child {
+    display: flex;
+    gap: 6px;
+}
+
+.pricing-toggle-container > div:first-child .btn {
+    flex: 1;
+}
+
+/* Toggle row */
+.pricing-toggle-container > div:last-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Show toggle only on results page */
+body.showing-results .pricing-toggle-container {
+    display: flex;
+}
+
+/* Add padding to content so first card isn't hidden under fixed toggle */
+body.showing-results #recommendedPackages {
+    padding-top: 95px;
+}
+
+/* Smooth Animations */
+* {
+    scroll-behavior: smooth;
+}
+
+/* Hide header when on page 2 - CRITICAL FIX */
+body.showing-results .header {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.showing-results .container {
+    overflow: visible !important;
+}
+
+body.showing-results .content {
+    padding-top: 16px;
+    overflow: visible !important;
+}
+
+
+/* Collapsible "Why this package?" sections */
+.talking-points h4 {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.talking-points h4::after {
+    content: '▼';
+    font-size: 0.6rem;
+    transition: transform 0.2s;
+    margin-left: auto;
+}
+
+.talking-points h4.collapsed::after {
+    transform: rotate(-90deg);
+}
+
+.tp-content {
+    max-height: 2000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.tp-content.collapsed {
+    max-height: 0;
+}
+
+.tp-pitch {
+    font-style: italic;
+    color: #2d3748;
+    padding: 10px 12px;
+    background: #f7fafc;
+    border-left: 3px solid #c53030;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.tp-best-for {
+    background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 0.84rem;
+    color: #92400e;
+    line-height: 1.4;
+}
+
+.tp-section {
+    margin-bottom: 10px;
+}
+
+.tp-section-title {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #718096;
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tp-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.tp-content li {
+    padding: 5px 0;
+    padding-left: 22px;
+    position: relative;
+    font-size: 0.82rem;
+    color: #2d3748;
+    line-height: 1.4;
+    break-inside: avoid;
+}
+
+.tp-content li:before {
+    content: "\2714";
+    position: absolute;
+    left: 0;
+    color: #48bb78;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+/* Prepay savings box - compact */
+.package-card > div[style*="background: linear-gradient"] {
+    margin-top: 10px !important;
+    padding: 12px !important;
+    border-radius: 10px !important;
+}
+
+.package-card > div[style*="background: linear-gradient"] > div[style*="margin-bottom: 12px"] {
+    margin-bottom: 8px !important;
+}
+
+.package-card > div[style*="background: linear-gradient"] > div[style*="padding: 12px"] {
+    padding: 10px !important;
+    margin-bottom: 8px !important;
+}

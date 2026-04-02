@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mosquito Mike Package Calculator</title>
+    <link rel="icon" type="image/png" href="MM_Calculator_Icon-9.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="Mosquito Mike Logo" class="header-logo">
+            <h1>Mosquito Mike Package Calculator</h1>
+            <p>Smart Package Recommendations Based on Customer Needs</p>
+        </div>
+
+        <div class="content">
+            <!-- Page 1: Questions -->
+            <div id="page1" class="page active">
+                <div class="input-group">
+                    <label for="acreage">Treatment Area (in acres):</label>
+                    <input type="number" id="acreage" step="0.01" min="0.01" placeholder="Enter acreage (e.g., 0.75)">
+                    <div id="tierDisplay" class="tier-display"></div>
+                    <button id="btnViewPricing" class="btn btn-view-pricing" onclick="viewAllPricing()" style="display: none;">View All Pricing</button>
+                </div>
+
+                <div class="input-group">
+                    <label>Are you looking for protection for mosquitoes, ticks, or both?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="pest-mosquitoes" name="pest_concern" value="mosquitoes">
+                            <label for="pest-mosquitoes">Mosquitoes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="pest-ticks" name="pest_concern" value="ticks">
+                            <label for="pest-ticks">Ticks</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="pest-both" name="pest_concern" value="both">
+                            <label for="pest-both">Both</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Do you have wetlands or standing water on or near your property?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="water-yes" name="standing_water" value="yes">
+                            <label for="water-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="water-no" name="standing_water" value="no">
+                            <label for="water-no">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Do you have any kids or pets that you're also getting the service for?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="kids-yes" name="kids_pets" value="yes">
+                            <label for="kids-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="kids-no" name="kids_pets" value="no">
+                            <label for="kids-no">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Do you use your yard in the summer, or spring through fall?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="yard-summer" name="yard_use" value="summer">
+                            <label for="yard-summer">Summer</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="yard-spring-fall" name="yard_use" value="spring_fall">
+                            <label for="yard-spring-fall">Spring Through Fall</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Okay great, one last question. Do you usually prefer to pay as you go, prepay and save, or budget and spread payments over 12 months?</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="payment-paygo" name="payment_preference" value="pay_go">
+                            <label for="payment-paygo">Pay As You Go</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="payment-prepay" name="payment_preference" value="prepay">
+                            <label for="payment-prepay">Prepay and Save</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="payment-budget" name="payment_preference" value="budget">
+                            <label for="payment-budget">Budget Over 12 Months</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="calculatePackages()">Get Package Recommendations</button>
+                </div>
+            </div>
+
+            <!-- Page 2: Results -->
+            <div id="page2" class="page">
+
+                <div id="recommendedPackages"></div>
+
+                <div id="allPackages" class="all-packages"></div>
+
+                <div class="copy-section">
+                    <h4>CRM Notes (Click to copy):</h4>
+                    <div id="crmNotes" class="copy-text"></div>
+                    <button class="btn-copy" onclick="copyCRMNotes()">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed pricing toggle - outside container so it truly stays fixed -->
+    <div class="pricing-toggle-container">
+        <!-- Row 1: Action buttons -->
+        <div>
+            <button id="btnShowAll" class="btn btn-secondary btn-view-all" onclick="showAllPackages()">All Packages</button>
+            <button id="btnHideAll" class="btn btn-secondary" onclick="hideAllPackages()" style="display: none;">Hide Packages</button>
+            <button class="btn btn-primary" onclick="resetCalculator()">New Calc</button>
+        </div>
+        <!-- Row 2: Toggle -->
+        <div>
+            <span id="toggleLabel" style="font-weight: 600; color: #4a5568; font-size: 0.75rem;">Traditional</span>
+            <label class="pricing-toggle">
+                <input type="checkbox" id="pricingToggle" onchange="togglePricingMode()">
+                <span class="toggle-slider"></span>
+            </label>
+            <span style="font-weight: 600; color: #48bb78; font-size: 0.75rem;">All Natural</span>
+        </div>
+    </div>
+
+    <!-- Configuration and Pricing Data -->
+    <script src="config.js"></script>
+    <!-- Calculator Logic -->
+    <script src="calculator.js"></script>
+</body>
+</html>
