@@ -484,10 +484,11 @@ function getTalkingPoints(packageKey, answers) {
     else if (packageKey === 'budget_12mo_monthly') priceDisplay += '/mo';
 
     // Calculate per-treatment price for prepaid packages
-    const appCounts = { 'prepaid_10_biweekly': 10, 'prepaid_12_biweekly': 12, 'prepaid_14_biweekly': 14 };
+    // Paid app counts (excludes the 1 free app)
+    const paidAppCounts = { 'prepaid_10_biweekly': 9, 'prepaid_12_biweekly': 11, 'prepaid_14_biweekly': 13 };
     let perTreatmentDisplay = '$XX';
-    if (appCounts[packageKey] && traditionalPrice) {
-        perTreatmentDisplay = `$${Math.round(traditionalPrice / appCounts[packageKey])}`;
+    if (paidAppCounts[packageKey] && traditionalPrice) {
+        perTreatmentDisplay = `$${Math.round(traditionalPrice / paidAppCounts[packageKey])}`;
     }
 
     const pitch = data.pitch.replace(/\$PER_TREATMENT/g, perTreatmentDisplay).replace(/\$PRICE/g, priceDisplay);
