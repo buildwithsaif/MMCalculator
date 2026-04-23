@@ -3,6 +3,7 @@ let currentTier = null;
 let debugMode = false;
 let showNaturalPricing = false; // Toggle between traditional and natural pricing
 let pricingOnlyMode = false; // True when user skips questions and views all pricing
+let lastAnswers = null; // Store last customer answers for use across pages
 
 // Update tier display as user types
 document.getElementById('acreage').addEventListener('input', function() {
@@ -54,6 +55,7 @@ function calculatePackages() {
     
     const answers = {
         pest_concern: document.querySelector('input[name="pest_concern"]:checked')?.value,
+        other_pests: document.querySelector('input[name="other_pests"]:checked')?.value,
         standing_water: document.querySelector('input[name="standing_water"]:checked')?.value,
         kids_pets: document.querySelector('input[name="kids_pets"]:checked')?.value,
         yard_use: document.querySelector('input[name="yard_use"]:checked')?.value,
@@ -69,7 +71,8 @@ function calculatePackages() {
     }
     
     pricingOnlyMode = false;
-    document.querySelector('.copy-section').style.display = '';
+    lastAnswers = answers;
+    document.getElementById('outcomeButtons').style.display = '';
 
     // Get recommendations from lookup table
     const recommendations = getRecommendations(answers);
@@ -114,8 +117,8 @@ function viewAllPricing() {
     // Clear recommendations section
     document.getElementById('recommendedPackages').innerHTML = '';
 
-    // Hide CRM notes in pricing-only mode
-    document.querySelector('.copy-section').style.display = 'none';
+    // Hide outcome buttons in pricing-only mode
+    document.getElementById('outcomeButtons').style.display = 'none';
 
     // Show all packages directly
     const container = document.getElementById('allPackages');
@@ -164,9 +167,6 @@ function displayResults(recommendations, answers, acreage) {
         container.appendChild(packageDiv);
     });
     
-    // Prepare CRM notes
-    const crmNotes = prepareCRMNotes(recommendations, answers, acreage);
-    document.getElementById('crmNotes').textContent = crmNotes;
 }
 
 function createPackageCard(packageKey, tier, badge, isRecommended, score, answers) {
@@ -580,45 +580,6 @@ function hideAllPackages() {
     document.getElementById('btnHideAll').style.display = 'none';
 }
 
-function prepareCRMNotes(recommendations, answers, acreage) {
-    const date = new Date().toLocaleDateString();
-    const tier = currentTier;
-    
-    // Format yard_use for display
-    let yardUseDisplay = answers.yard_use;
-    if (answers.yard_use === 'spring_fall') {
-        yardUseDisplay = 'spring through fall';
-    }
-    
-    // Format payment_preference for display
-    let paymentPrefDisplay = answers.payment_preference;
-    if (answers.payment_preference === 'pay_go') {
-        paymentPrefDisplay = 'PPS';
-    }
-    
-    let notes = `Date: ${date}\n`;
-    notes += `Property Size: ${acreage} acres (${tier})\n`;
-    notes += `\nCustomer Profile:\n`;
-    notes += `- Pest Concern: ${answers.pest_concern}\n`;
-    notes += `- Standing Water: ${answers.standing_water}\n`;
-    notes += `- Kids/Pets: ${answers.kids_pets}\n`;
-    notes += `- Yard Use: ${yardUseDisplay}\n`;
-    notes += `- Payment Preference: ${paymentPrefDisplay}\n`;
-    notes += `\nRecommended Packages:\n`;
-    
-    recommendations.forEach((rec, index) => {
-        const packageName = PACKAGE_NAMES[rec.pkg] || rec.pkg;
-        const traditionalPrice = PRICING_JSON.packages_by_tier[rec.pkg]?.[tier] || 'N/A';
-        const naturalSurcharge = getNaturalSurcharge(rec.pkg);
-        const naturalPrice = traditionalPrice !== 'N/A' ? traditionalPrice + naturalSurcharge : 'N/A';
-        
-        notes += `${index + 1}. ${packageName}\n`;
-        notes += `   Traditional: $${traditionalPrice} | Natural: $${naturalPrice}\n`;
-    });
-    
-    return notes;
-}
-
 function getNaturalSurcharge(packageKey) {
     if (packageKey === 'pps_biweekly' || packageKey === 'pps_triweekly' || packageKey === 'pps_monthly') {
         return PRICING_JSON.surcharges.natural.pps_per_application;
@@ -635,20 +596,6 @@ function getNaturalSurcharge(packageKey) {
     }
     return 0;
 }
-
-function copyCRMNotes() {
-    const notes = document.getElementById('crmNotes').textContent;
-    navigator.clipboard.writeText(notes).then(() => {
-        const btn = document.querySelector('.btn-copy');
-        btn.textContent = 'Copied!';
-        btn.classList.add('copied');
-        setTimeout(() => {
-            btn.textContent = 'Copy to Clipboard';
-            btn.classList.remove('copied');
-        }, 2000);
-    });
-}
-
 
 function toggleTalkingPoints(element) {
     const h4 = element;
@@ -684,15 +631,550 @@ function resetCalculator() {
 
     // Reset pricing-only mode elements
     document.getElementById('btnViewPricing').style.display = 'none';
-    document.querySelector('.copy-section').style.display = '';
+    document.getElementById('outcomeButtons').style.display = '';
+
+    // Clear email generator
+    const clientName = document.getElementById('clientName');
+    const repName = document.getElementById('repName');
+    const generatedEmail = document.getElementById('generatedEmail');
+    if (clientName) clientName.value = '';
+    if (repName) repName.value = '';
+    if (generatedEmail) generatedEmail.style.display = 'none';
+    const planBoxes = document.querySelectorAll('.plan-check-box');
+    planBoxes.forEach(b => { b.checked = false; b.disabled = false; });
+    const waive = document.getElementById('waiveNatural');
+    if (waive) waive.checked = false;
 
     // Switch back to questions page
     document.getElementById('page2').classList.remove('active');
+    document.getElementById('page3').classList.remove('active');
+    document.getElementById('page4').classList.remove('active');
     document.getElementById('page1').classList.add('active');
+
+    lastAnswers = null;
 
     // Scroll to top of page
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ---- Outcome flow: Sold / Not Sold ----
+
+function goToAddons() {
+    const pitchDiv = document.getElementById('addonsPitch');
+    const hasOtherPests = lastAnswers?.other_pests === 'yes';
+
+    // Opener pitch based on yes/no answer
+    let openerHtml = '';
+    if (hasOtherPests) {
+        openerHtml = `
+            <div class="pitch-block yes">
+                <h3>Opener \u2014 Customer said YES to other pests</h3>
+                <p><em>Pitch Example:</em></p>
+                <blockquote>
+                    "I know you mentioned you've been having some issues with ants/rodents around the home \u2014
+                    that's actually really common this time of year, and it's something we can help with.
+                    We offer a pest add-on that covers the perimeter of your home to knock down the
+                    existing activity and keep them from coming back. Since we're already going to be on
+                    the property for mosquito service, it's a lot more cost-effective than hiring a separate
+                    pest company. <strong>Can I walk you through the options real quick so we can knock out
+                    both problems in one shot?</strong>"
+                </blockquote>
+            </div>
+        `;
+    } else {
+        openerHtml = `
+            <div class="pitch-block no">
+                <h3>Opener \u2014 Customer said NO to other pests</h3>
+                <p><em>Pitch Example:</em></p>
+                <blockquote>
+                    "I know you said you haven't really had issues with ants or rodents \u2014 which is great,
+                    and that's exactly why I wanted to mention our preventative pest add-on.
+                    It's a lot easier (and cheaper) to keep them out than it is to get them out once they're inside.
+                    Since we're already coming to the property for mosquito service, we can add a quick
+                    perimeter treatment to protect the home year-round. <strong>Want me to run through the
+                    options real quick?</strong>"
+                </blockquote>
+            </div>
+        `;
+    }
+
+    // Build the 3 add-on cards
+    const addons = [
+        { key: 'insect_rodent_plan', badge: 'Primary Recommendation' },
+        { key: 'insect_plan', badge: 'Alternative Option' },
+        { key: 'insect_onetime', badge: 'Fallback Option' }
+    ];
+    let cardsHtml = '<div class="addon-cards">';
+    addons.forEach(a => {
+        cardsHtml += buildAddonCard(a.key, a.badge);
+    });
+    cardsHtml += '</div>';
+
+    pitchDiv.innerHTML = openerHtml + cardsHtml;
+
+    document.getElementById('page2').classList.remove('active');
+    document.getElementById('page3').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildAddonCard(addonKey, badge) {
+    const data = ADDON_DATA[addonKey];
+    if (!data) return '';
+
+    const isPrimary = badge === 'Primary Recommendation';
+    const cardClass = isPrimary ? 'package-card recommended addon-card' : 'package-card addon-card';
+
+    let priceBlock = '';
+    if (addonKey === 'insect_rodent_plan') {
+        priceBlock = `
+            <div class="pricing-row">
+                <div class="pricing-option" style="flex: 1;">
+                    <div class="pricing-label">Bundled Monthly</div>
+                    <div class="pricing-amount">$59/mo</div>
+                </div>
+            </div>
+        `;
+    } else if (addonKey === 'insect_plan') {
+        priceBlock = `
+            <div class="pricing-row">
+                <div class="pricing-option" style="flex: 1;">
+                    <div class="pricing-label">Bundled Monthly</div>
+                    <div class="pricing-amount">$29/mo</div>
+                </div>
+            </div>
+        `;
+    } else if (addonKey === 'insect_onetime') {
+        priceBlock = `
+            <div class="pricing-row">
+                <div class="pricing-option" style="flex: 1;">
+                    <div class="pricing-label">Bundled One-Time</div>
+                    <div class="pricing-amount">$129</div>
+                </div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="${cardClass}">
+            <div class="package-header">
+                <h3 class="package-title">${data.name}</h3>
+                <span class="recommendation-badge">${badge}</span>
+            </div>
+            ${priceBlock}
+            <div class="talking-points">
+                <h4 class="collapsed" onclick="toggleTalkingPoints(this)">Pitch &amp; details</h4>
+                <div class="tp-content collapsed">
+                    <div class="tp-pitch">${Array.isArray(data.pitch) ? data.pitch.map(p => `<p>${p}</p>`).join('') : data.pitch}</div>
+                    <div class="tp-section">
+                        <div class="tp-section-title">Key Details</div>
+                        <ul>${data.details.map(d => `<li>${d}</li>`).join('')}</ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+const ADDON_DATA = {
+    'insect_rodent_plan': {
+        name: 'Insect + Rodent Prevention Plan (NEW for 2026)',
+        pitch: [
+            'Our most complete add-on \u2014 brand new for 2026. Three foundation treatments a year (spring, summer, fall) to keep ants, spiders, and 30+ other insects from getting inside, plus two rodent bait stations on the sides of the home that we check quarterly.',
+            'Each station uses a dual approach: one has bait that kills active rodents, the other has birth control bait \u2014 so smarter rodents that avoid the lethal stuff still hit the birth control and can\u2019t reproduce. Keeps 2 mice from turning into 50.',
+            'And if you\u2019re already seeing ants inside the home, we\u2019ll provide an ant bait you can use indoors that pairs really well with the exterior treatment \u2014 it works hand-in-hand to knock down what\u2019s inside while we keep the outside protected.',
+            'All bundled into your mosquito service at <strong>$59/month on a 12-month agreement</strong>.',
+            '<strong>Honestly, for the most complete protection you can get, this is the one I\u2019d recommend \u2014 want me to go ahead and add that on for you?</strong>'
+        ],
+        details: [
+            '<strong>3 foundation treatments per year</strong> (spring, summer, fall) \u2014 90-day barrier each',
+            'Targets ants, spiders, cockroaches, silverfish, centipedes, earwigs, crickets, beetles, millipedes, and more',
+            '<strong>2 rodent bait stations</strong> placed on either side of the home',
+            'Stations checked <strong>quarterly</strong>',
+            'Dual bait: rodenticide (kills) + birth control (long-term population control)',
+            '<strong>Interior ant bait included</strong>',
+            '<strong>$59/month bundled</strong> \u2014 <strong>12-month agreement</strong>'
+        ]
+    },
+    'insect_plan': {
+        name: 'Insect Prevention Plan (Subscription)',
+        pitch: [
+            'If rodents aren\u2019t a concern, this is our tri-annual insect prevention on its own. We treat the foundation of the home three times a year (spring, summer, fall), which creates a barrier that blocks ants, spiders, and 30+ other insects from getting inside.',
+            'Each treatment lasts about 90 days, so the three visits keep it active all season long.',
+            'And if you\u2019re already seeing ants inside the home, we\u2019ll provide an ant bait you can use indoors that pairs really well with the exterior treatment \u2014 it works hand-in-hand to knock down what\u2019s inside while we keep the outside protected.',
+            'Bundled with your mosquito service at <strong>$29/month on a 12-month agreement</strong>.',
+            '<strong>Want me to add that on so you\u2019re covered for ants, spiders, and everything else all season?</strong>'
+        ],
+        details: [
+            '<strong>3 foundation treatments per year</strong> (spring, summer, fall)',
+            '90-day barrier per treatment',
+            'Targets ants, spiders, cockroaches, silverfish, centipedes, earwigs, crickets, beetles, millipedes, and more',
+            '<strong>Interior ant bait included</strong>',
+            'Exterior preventative service \u2014 stops insects before they enter',
+            '<strong>$29/month bundled</strong> \u2014 <strong>12-month agreement</strong>'
+        ]
+    },
+    'insect_onetime': {
+        name: 'One-Time Insect Prevention Treatment',
+        pitch: [
+            'If you\u2019re not looking to commit to the year-round protection, we also have a one-time foundation treatment available.',
+            'Normally this is <strong>$299 as a standalone service</strong>, but because you\u2019re already getting mosquito service with us, we can bundle it in for <strong>only $129</strong> \u2014 that\u2019s a huge savings.',
+            'Same application as the subscription \u2014 creates a barrier at the base of the home that blocks ants, spiders, and 30+ other insects for about 90 days. No commitment, no subscription \u2014 just knocks down the activity you\u2019re seeing.',
+            '<strong>Want me to tack that on so we can knock out the pest issue while we\u2019re already out there?</strong>'
+        ],
+        details: [
+            '<strong>Single foundation treatment</strong>',
+            'Lasts up to 90 days',
+            'Same application as the subscription plan',
+            'Targets ants, spiders, cockroaches, silverfish, centipedes, earwigs, crickets, beetles, millipedes, and more',
+            'No subscription commitment',
+            '<strong>$299 standalone \u2192 $129 bundled</strong> with mosquito service (save $170)'
+        ]
+    }
+};
+
+function goToEmail() {
+    document.getElementById('page2').classList.remove('active');
+    document.getElementById('page4').classList.add('active');
+    document.getElementById('generatedEmail').style.display = 'none';
+    initEmailPage();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ---- Plan definitions for email generator ----
+const EMAIL_PLANS = [
+    {
+        key: 'pps_biweekly',
+        title: 'Pay-As-You-Go Biweekly',
+        rateSuffix: '/per visit',
+        bestFor: 'Customers who want flexibility without a long-term commitment.',
+        bullets: [
+            'Service every 11\u201317 days (aligned with mosquito life cycle)',
+            'No contract, no upfront cost \u2014 pay only when treated',
+            'Covers mosquitoes, ticks, and fleas',
+            'Minimum of 7 applications',
+            'Satisfaction Guarantee \u2014 retreatments provided if pest activity occurs between visits',
+            'Charged per visit via card or ACH on autopay'
+        ]
+    },
+    {
+        key: 'pps_triweekly',
+        title: 'Pay-As-You-Go Triweekly',
+        rateSuffix: '/per visit',
+        bestFor: 'Customers with a tick concern who still want mosquito and flea coverage guaranteed.',
+        bullets: [
+            'Service approximately every 3 weeks',
+            'No contract, no upfront cost \u2014 pay only when treated',
+            'Covers mosquitoes, ticks, and fleas',
+            'Satisfaction Guarantee \u2014 retreatments provided if pest activity occurs between visits',
+            'Charged per visit via card or ACH on autopay'
+        ]
+    },
+    {
+        key: 'pps_monthly',
+        title: 'Pay-As-You-Go Monthly',
+        rateSuffix: '/per visit',
+        bestFor: 'Customers with a primary tick concern on tick-heavy or wooded properties.',
+        bullets: [
+            'Service approximately every 4 weeks (not guaranteed scheduling)',
+            'Primarily focused on tick control, with secondary mosquito reduction',
+            'No service guarantee included for mosquitoes, ticks only',
+            'Charged per visit via card or ACH on autopay'
+        ]
+    },
+    {
+        key: 'prepaid',
+        title: 'Prepaid Season Plans \u2014 1 FREE Spray Included',
+        isPrepaid: true,
+        bestFor: 'Best overall value for consistent results over the course of our full season.',
+        bullets: [
+            'Biweekly service (every 11\u201317 days)',
+            'One upfront payment \u2014 no surprise charges',
+            'Price locked in for the season',
+            'Covers mosquitoes, ticks, and fleas',
+            'Satisfaction Guarantee included',
+            'Payment processed on first service via card or ACH'
+        ]
+    },
+    {
+        key: 'mem_lab_6_triweekly',
+        title: 'Summer Plan',
+        rateSuffix: '',
+        bestFor: 'Pool owners, BBQ hosts, and anyone who lives outdoors during summer.',
+        bullets: [
+            '6 treatments (Memorial Day \u2192 Labor Day)',
+            'Triweekly service (approximately every 3 weeks)',
+            'Covers mosquitoes, ticks, and fleas',
+            'One upfront payment',
+            'Satisfaction Guarantee included'
+        ]
+    },
+    {
+        key: 'budget_12mo_monthly',
+        title: 'Annual Protection Plan',
+        rateSuffix: '/month',
+        bestFor: 'Families who want reliable coverage with predictable monthly payments and no large upfront cost.',
+        bullets: [
+            'Service from April through October',
+            'Billed monthly over 12 months',
+            'Covers mosquitoes, ticks, and fleas',
+            'No large upfront cost',
+            'Satisfaction Guarantee included',
+            'ACH billing only',
+            '12-month commitment applies'
+        ]
+    },
+    {
+        key: 'event_non_holiday',
+        title: 'Event Protection Treatment',
+        rateSuffix: '',
+        bullets: [
+            'One-time treatment for special occasions',
+            'Ideal for parties, weddings, graduations, and events',
+            'Timed for maximum effectiveness',
+            'Provides short-term protection for mosquitoes, ticks, and fleas',
+            'No ongoing commitment'
+        ]
+    }
+];
+
+function initEmailPage() {
+    const container = document.getElementById('planCheckboxes');
+    container.innerHTML = '';
+    const tier = currentTier;
+
+    EMAIL_PLANS.forEach(plan => {
+        const row = document.createElement('div');
+        row.className = 'plan-check';
+
+        if (plan.isPrepaid) {
+            // Default to the PPS biweekly rate \u2014 totals calculated as rate * 9/11/13
+            const ppsRate = tier ? PRICING_JSON.packages_by_tier['pps_biweekly']?.[tier] : '';
+            row.innerHTML = `
+                <label class="plan-check-head">
+                    <input type="checkbox" class="plan-check-box" data-plan="${plan.key}" onchange="enforceMaxChecks()">
+                    <span class="plan-title">${plan.title}</span>
+                </label>
+                <div class="plan-price-single">
+                    <span class="dollar">$</span>
+                    <input type="text" class="plan-price" id="price_prepaid_rate" value="${ppsRate}">
+                    <span class="suffix">/per visit (5 mo totals 9\u00D7, 6 mo totals 11\u00D7, 7 mo totals 13\u00D7)</span>
+                </div>
+            `;
+        } else {
+            const price = tier ? PRICING_JSON.packages_by_tier[plan.key]?.[tier] : '';
+            row.innerHTML = `
+                <label class="plan-check-head">
+                    <input type="checkbox" class="plan-check-box" data-plan="${plan.key}" onchange="enforceMaxChecks()">
+                    <span class="plan-title">${plan.title}</span>
+                </label>
+                <div class="plan-price-single">
+                    <span class="dollar">$</span>
+                    <input type="text" class="plan-price" id="price_${plan.key}" value="${price}">
+                    <span class="suffix">${plan.rateSuffix}</span>
+                </div>
+            `;
+        }
+        container.appendChild(row);
+    });
+
+    // Auto-check recommended plans if available
+    if (lastAnswers) {
+        const recs = getRecommendations(lastAnswers);
+        const checkedKeys = new Set();
+        recs.slice(0, 2).forEach(rec => {
+            let key = rec.pkg;
+            // Map prepaid variants to the single "prepaid" checkbox
+            if (key.startsWith('prepaid_')) key = 'prepaid';
+            if (key === 'event_holiday') key = 'event_non_holiday';
+            if (checkedKeys.has(key)) return;
+            checkedKeys.add(key);
+            const box = container.querySelector(`input[data-plan="${key}"]`);
+            if (box) box.checked = true;
+        });
+        enforceMaxChecks();
+    }
+}
+
+function enforceMaxChecks() {
+    const boxes = document.querySelectorAll('.plan-check-box');
+    const checkedCount = Array.from(boxes).filter(b => b.checked).length;
+    boxes.forEach(b => {
+        b.disabled = !b.checked && checkedCount >= 2;
+        b.closest('.plan-check').classList.toggle('disabled', b.disabled);
+    });
+}
+
+function buildPlanEmailBlock(planKey) {
+    const plan = EMAIL_PLANS.find(p => p.key === planKey);
+    if (!plan) return '';
+
+    let html = '';
+    if (plan.isPrepaid) {
+        const rate = parseFloat(document.getElementById('price_prepaid_rate').value) || 0;
+        const p5 = Math.round(rate * 9);
+        const p6 = Math.round(rate * 11);
+        const p7 = Math.round(rate * 13);
+        html += `<p><strong>${plan.title}</strong></p>`;
+        html += `<p style="font-style:italic;">${plan.bestFor}</p>`;
+        html += `<ul>`;
+        html += `<li>5 Months: Pay for <strong>9</strong> applications, receive <strong>10</strong> treatments \u2014 <strong>$${p5}</strong></li>`;
+        html += `<li>6 Months: Pay for <strong>11</strong> applications, receive <strong>12</strong> treatments \u2014 <strong>$${p6}</strong></li>`;
+        html += `<li>7 Months: Pay for <strong>13</strong> applications, receive <strong>14</strong> treatments \u2014 <strong>$${p7}</strong></li>`;
+        html += `</ul>`;
+        html += `<p>All prepaid plans include:</p>`;
+        html += `<ul>${plan.bullets.map(b => `<li>${b}</li>`).join('')}</ul>`;
+    } else {
+        const price = document.getElementById(`price_${plan.key}`).value;
+        const priceDisplay = plan.rateSuffix ? `$${price}${plan.rateSuffix}` : `$${price}`;
+        html += `<p><strong>${plan.title} \u2013 ${priceDisplay}</strong></p>`;
+        if (plan.bestFor) {
+            html += `<p style="font-style:italic;">Best For: ${plan.bestFor}</p>`;
+        }
+        html += `<ul>${plan.bullets.map(b => `<li>${b}</li>`).join('')}</ul>`;
+    }
+    return html;
+}
+
+function generateEmail() {
+    const clientNameEl = document.getElementById('clientName');
+    const repNameEl = document.getElementById('repName');
+    const clientName = clientNameEl.value.trim();
+    const repName = repNameEl.value.trim();
+
+    if (!clientName) {
+        alert('Please enter the client\u2019s first name.');
+        clientNameEl.focus();
+        return;
+    }
+    if (!repName) {
+        alert('Please enter your first name.');
+        repNameEl.focus();
+        return;
+    }
+
+    const checkedBoxes = Array.from(document.querySelectorAll('.plan-check-box:checked'));
+    if (checkedBoxes.length === 0) {
+        alert('Please select at least one plan to include in the email.');
+        return;
+    }
+
+    let html = '';
+    html += `<p>Hi ${clientName},</p>`;
+    html += `<p>Thanks again for taking the time to go over everything with the team here at Mosquito Mike!</p>`;
+    html += `<p>I\u2019ve outlined the options we discussed below so you can review them and decide what feels like the best fit for your property.</p>`;
+    html += `<hr>`;
+
+    html += `<p><strong>Mosquito &amp; Tick Treatment Options</strong></p>`;
+    checkedBoxes.forEach(box => {
+        html += buildPlanEmailBlock(box.dataset.plan);
+    });
+
+    // Always included: All-Natural (with optional waiver)
+    const waiveNatural = document.getElementById('waiveNatural')?.checked;
+    const naturalHeading = waiveNatural
+        ? 'All-Natural Treatment Option \u2014 Upcharge Waived'
+        : 'All-Natural Treatment Option (+$5 per visit)';
+    html += `<p>\uD83C\uDF3F <strong>${naturalHeading}</strong></p>`;
+    if (waiveNatural) {
+        html += `<p>As a courtesy, we\u2019re <strong>waiving the standard $5/visit upcharge</strong> for the All-Natural treatment \u2014 so you can opt for the all-natural solution at no extra cost on top of your selected plan.</p>`;
+    }
+    html += `<ul>`;
+    html += `<li>Essential oil-based treatment (lemongrass, cedarwood, castor oil, geraniol, garlic)</li>`;
+    html += `<li>Equally as effective as our traditional solution</li>`;
+    html += `<li>Can be applied to any mosquito &amp; tick plan</li>`;
+    html += `<li>May also help deter deer activity (results can vary)</li>`;
+    html += `</ul>`;
+
+    html += `<hr>`;
+
+    // Always included: Add-on pitch
+    html += `<p><strong>General Pest Control: Discounted Add-On Programs</strong></p>`;
+    html += `<p><strong>Insect Prevention Plan</strong> \u2014 Preventative treatment around the foundation of the home targeting ants, spiders, and 35+ common insects \u2014 helping stop pests before they get inside. Tri-annual treatments serviced April\u2013October.</p>`;
+    html += `<ul>`;
+    html += `<li><strong>Year-Round Protection</strong> \u2013 $29/month (add rodent bait stations for $59/month)</li>`;
+    html += `<li><strong>One-Time Treatment</strong> \u2013 $129 (single treatment, lasts 90 days)</li>`;
+    html += `</ul>`;
+
+    html += `<hr>`;
+
+    // Always included: Why choose Mosquito Mike?
+    html += `<p><strong>Why choose Mosquito Mike?</strong></p>`;
+    html += `<p>Our service is built around a structured process known as <strong>The Mosquito Mike Way</strong>. Many companies limit their service to a simple perimeter treatment \u2014 our approach is designed to fully protect your property:</p>`;
+    html += `<ul>`;
+    html += `<li>We start by creating a <strong>barrier around the perimeter</strong></li>`;
+    html += `<li>Then we treat <strong>bushes, trees, pool areas, decks, and around the home</strong></li>`;
+    html += `<li>And finally, we treat the <strong>entire lawn</strong></li>`;
+    html += `</ul>`;
+    html += `<p>This ensures that even if anything breaks through one area, your <strong>entire property remains protected</strong>. All services are backed by our <strong>service guarantee \u2014 if activity occurs between treatments, we return and re-treat at no charge.</strong></p>`;
+
+    html += `<p>We also maintain clear, consistent communication throughout the <strong>entire process</strong>:</p>`;
+    html += `<ul>`;
+    html += `<li>A text the <strong>night before service</strong></li>`;
+    html += `<li>A second notification <strong>45 minutes prior</strong> with an ETA, giving you time to prepare before treatment begins</li>`;
+    html += `<li>A <strong>completion text</strong> once the service is finished</li>`;
+    html += `<li>A <strong>door hanger left on-site with the technician\u2019s name</strong>, so you know exactly who serviced your property</li>`;
+    html += `</ul>`;
+
+    html += `<p>What truly sets us apart is what we call <strong>\u201CTrust You Can See\u201D</strong>:</p>`;
+    html += `<ul>`;
+    html += `<li><strong>Body cameras</strong> on every technician for full accountability</li>`;
+    html += `<li>A <strong>mapped view of your service</strong>, showing exactly where your property was treated</li>`;
+    html += `<li>Consistent coverage that aligns with <strong>The Mosquito Mike Way</strong></li>`;
+    html += `<li>A responsive team available whenever you need support</li>`;
+    html += `</ul>`;
+
+    html += `<hr>`;
+
+    html += `<p>There\u2019s usually a way to adjust our plans to get you exactly where you want to be \u2014 whether that\u2019s dialing in frequency, coverage length, or budget. If you have any questions at all or want help narrowing this down, I\u2019m happy to walk through it with you.</p>`;
+    html += `<p>I can also set your service up for the time of year that works best for you \u2014 we won\u2019t treat or charge anything until you\u2019re ready to begin. Just let me know what direction you\u2019d like to go, and I\u2019ll take care of the rest.</p>`;
+
+    html += `<p>Best regards,<br>${repName}<br>Mosquito Mike</p>`;
+
+    document.getElementById('emailContent').innerHTML = html;
+    document.getElementById('generatedEmail').style.display = 'block';
+}
+
+async function copyEmailHTML() {
+    const contentEl = document.getElementById('emailContent');
+    const html = contentEl.innerHTML;
+    const text = contentEl.innerText;
+
+    try {
+        const blobHtml = new Blob([html], { type: 'text/html' });
+        const blobText = new Blob([text], { type: 'text/plain' });
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                'text/html': blobHtml,
+                'text/plain': blobText
+            })
+        ]);
+        const btn = document.querySelector('#generatedEmail .btn-copy');
+        btn.textContent = 'Copied! Paste into Gmail';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = 'Copy to Gmail';
+            btn.classList.remove('copied');
+        }, 2500);
+    } catch (err) {
+        // Fallback: select and copy
+        const range = document.createRange();
+        range.selectNodeContents(contentEl);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.execCommand('copy');
+        sel.removeAllRanges();
+        alert('Email copied! (Fallback method \u2014 paste into Gmail to see formatting.)');
+    }
+}
+
+function backToResults() {
+    document.getElementById('page3').classList.remove('active');
+    document.getElementById('page4').classList.remove('active');
+    document.getElementById('page2').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 
 function toggleDebug() {
     debugMode = !debugMode;
